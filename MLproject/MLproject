@@ -1,0 +1,11 @@
+name: Workflow-CI-Mayang_Gumelar
+
+conda_env: conda.yaml
+
+entry_points:
+  main:
+    parameters:
+      n_estimators: {type: int, default: 257}
+      max_depth: {type: int, default: 13}
+      dataset : {type: string, default: "train_data_liver.csv"}
+    command: "python modelling.py {n_estimators} {max_depth} {dataset}"
