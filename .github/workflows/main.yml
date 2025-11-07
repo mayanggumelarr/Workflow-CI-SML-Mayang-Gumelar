@@ -61,4 +61,4 @@ jobs:
           python MLproject/upload_to_drive.py
 
       - name: 9. Complete job
-        run: echo "Workflow selesai dijalankan!"
+        run: echo "Workflows selesai dijalankan!"
