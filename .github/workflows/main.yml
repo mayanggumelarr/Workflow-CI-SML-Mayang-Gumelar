@@ -1,0 +1,64 @@
+name: Workflow-CI-Mayang_Gumelar
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  CSV_URL: "MLproject/train_data_liver.csv"
+  TARGET_VAR: "Target"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 2. Set up Python 3.12.7
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.7"
+
+      - name: 3. Check Env
+        run: |
+          echo "CSV file path: $CSV_URL"
+          echo "Target variable: $TARGET_VAR"
+          python --version
+          pip --version
+
+      - name: 4. Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 5. Set MLflow Tracking URI
+        run: |
+          export MLFLOW_TRACKING_URI="http://127.0.0.1:5000"
+          echo "MLflow Tracking URI set to $MLFLOW_TRACKING_URI"
+
+      - name: 6. Run mlflow project
+        run: |
+          echo "Running MLflow project..."
+          python MLproject/modelling.py
+
+      - name: 7. Install Google Drive dependencies
+        run: |
+          pip install google-api-python-client google-auth google-auth-httplib2 google-auth-oauthlib
+
+      - name: 8. Upload to Google Drive
+        env:
+          GDRIVE_CREDENTIALS: ${{ secrets.GDRIVE_CREDENTIALS }}
+          GDRIVE_FOLDER_ID: ${{ secrets.GDRIVE_FOLDER_ID }}
+        run: |
+          echo "Mengupload hasil training ke Google Drive..."
+          echo "$GDRIVE_CREDENTIALS" > credentials.json
+          python MLproject/upload_to_drive.py
+
+      - name: 9. Complete job
+        run: echo "Workflow selesai dijalankan!"
